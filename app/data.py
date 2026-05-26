@@ -1,13 +1,12 @@
+# denna filen lagrar och hämtar dataset
 import pandas as pd
 
-df = None
+_df = None
 
-def load_csv(file_path: str):
-    global df
-    df = pd.read_csv(file_path)
-    return df
 
-def get_starts():
-    if df is None:
-        return None
-    return df.describe(include="all")
+def save_dataframe(df: pd.DataFrame):
+    global _df
+    _df = df
+
+def get_dataframe():
+    return _df

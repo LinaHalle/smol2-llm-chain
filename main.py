@@ -21,7 +21,7 @@ def llm_route(body: LLMRequest):
 
 @app.post("/data/upload")
 def upload_csv(file: UploadFile = File(...)):
-    content = file.file.read().ddecode("utf-8")
+    content = file.file.read().decode("utf-8")
     df = pd.read_csv(StringIO(content))
 
     response = UploadResponse(

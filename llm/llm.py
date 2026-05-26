@@ -7,11 +7,13 @@ I = TypeVar("I")
 O = TypeVar("O")
 M = TypeVar("M")
 
+# en runnable tar emot input och returnerar output
 class Runnable(BaseModel, Generic[I, O]):
     model_config = ConfigDict(arbitrary_types_allowed=True)
     
     name: str | None = None
     
+
     def invoke(self, data: I) -> O:
         raise NotImplementedError("Subclasses is not implemented")
     
@@ -63,6 +65,7 @@ class ProcessedTicket(BaseModel):
     urgency: str
     summary: str
 
+# tar emot TicketInput, returnerar dict
 class SentimentAnalyser(Runnable[TicketInput, dict]):
     name: str = "sentiment_analyser"
     model_version: str = "2.1-stable"
@@ -81,6 +84,7 @@ class SentimentAnalyser(Runnable[TicketInput, dict]):
             "summary": ticket.message[:40] + "..."
         }
 
+# tar emot dict, returnerar ProcessedTicket
 class TicketParser(Runnable[dict, ProcessedTicket]):
     name: str = "ticket_parser"
     
@@ -95,6 +99,7 @@ def route_ticket(ticket: ProcessedTicket) -> dict:
         "ticket_details": ticket.model_dump()
     }
 
+# input -> sentimentanalyser -> ticketparser -> route_ticket -> resultat
 ticket_pipeline = SentimentAnalyser() | TicketParser() | route_ticket
 
 incoming_ticket = TicketInput(

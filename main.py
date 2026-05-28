@@ -1,10 +1,10 @@
 # API endpoints
 from fastapi import FastAPI, UploadFile, File, HTTPException
 import pandas as pd
-from app.schemas import UploadResponse
+from app.schemas import UploadResponse, AskInput, AskRequest
 from pydantic import BaseModel
-from llm.llm import TicketInput, ticket_pipeline
 from app.data import save_dataframe, get_dataframe
+from app.chain.pipeline import oraklet_pipeline
 
 app = FastAPI()
 
@@ -14,15 +14,6 @@ class LLMRequest(BaseModel):
 
 class AIQueryRequest(BaseModel):
     message: str
-
-# tar input, kör pipeline, returnerar resultat, AI-delen
-@app.post("/llm")
-def llm_route(body: LLMRequest):
-    incoming_ticket = TicketInput(
-        customer_id=body.id,
-        message=body.message
-    )
-    return ticket_pipeline.invoke(incoming_ticket)
 
 # tar csv, laddar pandas, sparar i minnet, data-ingestion
 @app.post("/data/upload")
@@ -51,8 +42,12 @@ def get_stats():
     
     return stats
 
-@app.post("/ai/query")
-def ai_query(body: AIQueryRequest):
+class AskRequest(BaseModel):
+    question: str
+
+
+@app.post("/ai/ask")
+def ai_ask(body: AskRequest):
     df = get_dataframe()
 
     if df is None:
@@ -60,24 +55,14 @@ def ai_query(body: AIQueryRequest):
             status_code=404,
             detail="No dataset uploaded yet"
         )
-    
-    sample_data = df.head(10).to_string(index=False)
 
-    prompt = f"""
-You are a data analyst AI.
+    dataset_summary = df.describe(include="all").fillna("").to_string()
 
-Dataset:
-{sample_data}
-
-User question:
-{body.message}
-
-Answer clearly and based on the dataset.AIQueryRequest.
-"""
-    ticket = TicketInput(
-        customer_id=0,
-        message=prompt
+    chain_input = AskInput(
+        question=body.question,
+        dataset_summary=dataset_summary
     )
 
-    result = ticket_pipeline.invoke(ticket)
+    result = oraklet_pipeline.invoke(chain_input)
+
     return result

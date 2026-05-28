@@ -9,6 +9,10 @@ class UploadResponse(BaseModel):
 class AskRequest(BaseModel):
     question:str
 
+class AskInput(BaseModel):
+    question: str
+    dataset_summary: str
+
 class PromptBuilderInput(BaseModel):
     question: str
     dataset_summary: str

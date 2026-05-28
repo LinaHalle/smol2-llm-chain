@@ -59,7 +59,8 @@ class LLMRunner(
         raw_text = result[0]["generated_text"]
 
         return LLMRunnerOutput(
-            raw_response=raw_text
+            raw_response=raw_text,
+            question= input.question
         )
     
 class ResponseParser(
@@ -67,14 +68,23 @@ class ResponseParser(
 ):
     def invoke(
         self,
-        inout: LLMRunnerOutput
+        input: LLMRunnerOutput
     ) -> AskResponse:
         
         text = input.raw_response
-        text = text.replace("Answer:", "").strip()
 
-        if "ANSWER:" in text:
-            text = text.split("ANSWER:")[-1].strip()
+        # ta bort originalprompten
+        if "ANSWER (1-3 sentences only):" in text:
+            text = text.split("ANSWER (1-3 sentences only):")[-1]
+
+        text = text.strip()
+
+        # ta första stycket bara
+        text = text.split("\n\n")[0]
+
+        # fallback om modellen svarar tomt
+        if not text:
+            text = "Model returned empty response."
 
         return AskResponse(
             question=input.question,

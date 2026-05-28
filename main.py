@@ -1,5 +1,6 @@
 # API endpoints
 from fastapi import FastAPI, UploadFile, File, HTTPException
+from io import StringIO
 import pandas as pd
 from app.schemas import UploadResponse, AskInput, AskRequest
 from pydantic import BaseModel
@@ -12,13 +13,44 @@ class LLMRequest(BaseModel):
     id: int
     message: str
 
-class AIQueryRequest(BaseModel):
-    message: str
+
+@app.get("/health")
+def health():
+    return {"status": "ok"}
 
 # tar csv, laddar pandas, sparar i minnet, data-ingestion
 @app.post("/data/upload")
 def upload_csv(file: UploadFile = File(...)):
-    df = pd.read_csv(file.file)
+
+    if not file.filename.endswith(".csv"):
+        raise HTTPException(
+            status_code=400,
+            detail="Only CSV files are allowed"
+        )
+    content = file.file.read()
+
+    if not content:
+        raise HTTPException(
+            status_code=400,
+            detail="File is empty"
+        )
+    
+    if len(content) > 5 * 1024 * 1024:
+        raise HTTPException(
+            status_code=400,
+            detail="File too large (max 5MB)"
+        )
+    
+    try:
+        decoded = content.decode("utf-8")
+        df = pd.read_csv(StringIO(decoded))
+    
+    except UnicodeDecodeError:
+        raise HTTPException(
+            status_code=400,
+            detail="File must be UTF-8 encoded"
+        )
+    
     save_dataframe(df)
 
     response = UploadResponse(

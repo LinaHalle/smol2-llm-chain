@@ -1,4 +1,5 @@
 from pydantic import BaseModel
+from typing import Optional
 
 class UploadResponse(BaseModel):
     rows: int
@@ -14,9 +15,11 @@ class PromptBuilderInput(BaseModel):
 
 class PromptBuilderOutput(BaseModel):
     prompt: str
+    question: str
 
 class LLMRunnerOutput(BaseModel):
     raw_response: str
+    question: str
 
 class AskResponse(BaseModel):
     question: str

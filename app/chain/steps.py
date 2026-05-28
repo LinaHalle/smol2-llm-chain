@@ -34,7 +34,8 @@ Question:
 Answer clearly and briefly.
 """
         return PromptBuilderOutput(
-            prompt=prompt
+            prompt=prompt,
+            question=input.question
         )
     
 class LLMRunner(
@@ -67,7 +68,7 @@ class ResponseParser(
         answer = input.raw_response
 
         return AskResponse(
-            question="unknown",
+            question=input.question,
             answer=answer,
             model="HuggingFaceTB/smolLM2-135M-Instruct"
         )

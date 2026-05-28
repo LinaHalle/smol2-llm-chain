@@ -22,8 +22,13 @@ class PromptBuilder(
     ) -> PromptBuilderOutput:
         
         prompt = f"""
-You are a helpful data analyst AI.
-Use the dataset statistics below to answer the question.
+You are a strict data analysis assistant.
+
+RULES: 
+- Only use the dataset provided below.
+- If the answer cannot be derived from the dataset, say: "Not enough data in dataset"
+- Do NOT guess or use external knowledge.
+- Be concise and factual.
 
 Dataset statistics:
 {input.dataset_summary}
@@ -31,7 +36,7 @@ Dataset statistics:
 Question:
 {input.question}
 
-Answer clearly and briefly.
+ANSWER (1-3 sentences only):
 """
         return PromptBuilderOutput(
             prompt=prompt,

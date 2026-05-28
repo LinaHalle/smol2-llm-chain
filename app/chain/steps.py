@@ -70,10 +70,14 @@ class ResponseParser(
         inout: LLMRunnerOutput
     ) -> AskResponse:
         
-        answer = input.raw_response
+        text = input.raw_response
+        text = text.replace("Answer:", "").strip()
+
+        if "ANSWER:" in text:
+            text = text.split("ANSWER:")[-1].strip()
 
         return AskResponse(
             question=input.question,
-            answer=answer,
+            answer=text,
             model="HuggingFaceTB/smolLM2-135M-Instruct"
         )

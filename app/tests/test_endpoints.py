@@ -37,3 +37,16 @@ def test_upload_csv_succsess():
     assert data ["rows"] == 2
     assert "columns" in data
     assert "dtypes" in data
+
+def test_upload_invalid_file_type():
+    file_content = b"Summer is here"
+
+    file = BytesIO(file_content)
+
+    response = client.post(
+        "/data/upload",
+        files={"file": ("test.txt", file, "text/plan")}
+    )
+
+    assert response.status_code == 400
+    assert response.json()["detail"] == "Only CSV files are allowed"

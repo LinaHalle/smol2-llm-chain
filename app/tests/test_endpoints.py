@@ -61,3 +61,16 @@ def test_upload_empty_file():
 
     assert response.status_code == 400
     assert response.json()["detail"] == "File is empty"
+
+def test_upload_too_large_file():
+    big_content = b"a" * (6 * 1024 * 1024) #6mb istället för max som är 5mb
+
+    file = BytesIO(big_content)
+
+    response = client.post(
+        "/data/upload",
+        files={"file": ("big.csv", file, "text.csv")}
+    )
+
+    assert response.status_code == 400
+    assert response.json()["detail"] == "File too large (max 5MB)"

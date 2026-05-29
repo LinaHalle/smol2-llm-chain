@@ -50,3 +50,14 @@ def test_upload_invalid_file_type():
 
     assert response.status_code == 400
     assert response.json()["detail"] == "Only CSV files are allowed"
+
+def test_upload_empty_file():
+    file = BytesIO(b"")
+
+    response = client.post(
+        "/data/upload",
+        files={"file": ("empty.csv", file, "text/csv")}
+    )
+
+    assert response.status_code == 400
+    assert response.json()["detail"] == "File is empty"

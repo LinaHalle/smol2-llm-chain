@@ -23,7 +23,7 @@ API:et kan generera beskrivande statistik för det uppladdade datasetet.
 
 Användaren kan ställa frågor om datasetet på naturligt språk.
 
-Modellen är primärt optimerad för engelska instruktioner, därför används engelska frågor i exemplen och rekommenderas för bästa resultat.
+Modellen är primärt optimerad för engelska instruktioner, därför används engelska frågor i exemplena och rekommenderas för bästa resultat.
 
 ### AI-pipeline
 
